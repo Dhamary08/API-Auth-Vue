@@ -49,10 +49,10 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    cerrarSesion({commit}){
-      commit ('setUser', null)
+    cerrarSesion({ commit }) {
+      commit('setUser', null)
       router.push('/ingreso')
-
+      localStorage.removeItem('usuario')
     },
     async registrarUsuario({ commit }, usuario) {
       try {
@@ -67,20 +67,20 @@ export default new Vuex.Store({
             }),
           },
         )
-        const dataDB = await res.json()
-        // console.log(dataDB)
-        if (dataDB.error) {
-          return console.log('error en los datos: ', dataDB.error)
+        const userDB = await res.json()
+        // console.log(userDB)
+        if (userDB.error) {
+          return console.log('error en los datos: ', userDB.error)
         }
-        commit('setUser', dataDB)
+        commit('setUser', userDB)
         router.push('/')
+        localStorage.setItem('usuario', JSON.stringify(userDB))
       } catch (error) {
         console.log(error)
       }
     },
     async ingresoUsuario({ commit }, usuario) {
       try {
-        //ojo la url
         const res = await fetch(
           'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAEBMUKqcJu_4wujI0mQ_fy1MpB3P-WUaY',
           {
@@ -99,6 +99,7 @@ export default new Vuex.Store({
         }
         commit('setUser', userDB)
         router.push('/')
+        localStorage.setItem('usuario', JSON.stringify(userDB))
       } catch (error) {
         console.log(error)
       }
@@ -106,7 +107,13 @@ export default new Vuex.Store({
     /* ------------------- */
     //Esperar los datos de la base de datos
     async cargarLocalStorage({ commit, state }) {
-      console.log(state)
+      if (localStorage.getItem('usuario')) {
+        commit('setUser', JSON.parse(localStorage.getItem('usuario'))) //se pasa nuevaente a un objeto
+      } else {
+        console.log('paso aqui')
+        return commit('setUser', null)
+      }
+      //console.log(state)
       try {
         const res = await fetch(
           `https://api-rest-vue-init-default-rtdb.firebaseio.com/tareas/${state.user.localId}.json?auth=${state.user.idToken}`,
@@ -181,11 +188,10 @@ export default new Vuex.Store({
       }
     },
   },
-  getters:{
-    usuarioAutenticado(state){
+  getters: {
+    usuarioAutenticado(state) {
       return !!state.user //es !! porque si existe retorna True si no False
-    }
+    },
   },
   modules: {},
-
 })
