@@ -49,6 +49,11 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    cerrarSesion({commit}){
+      commit ('setUser', null)
+      router.push('/ingreso')
+
+    },
     async registrarUsuario({ commit }, usuario) {
       try {
         const res = await fetch(
@@ -176,6 +181,11 @@ export default new Vuex.Store({
       }
     },
   },
-
+  getters:{
+    usuarioAutenticado(state){
+      return !!state.user //es !! porque si existe retorna True si no False
+    }
+  },
   modules: {},
+
 })
