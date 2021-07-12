@@ -30,7 +30,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setTareas']), //recibe una tarea que es un objeto
+    ...mapActions(['setTareas','cargarLocalStorage']), //recibe una tarea que es un objeto
     procesarFormulario() {
       // console.log('tarea: ', this.tarea)
       if (this.tarea.texto.trim() === '') {
@@ -53,6 +53,9 @@ export default {
         numero: '',
       }
     },
+  },
+  created() {
+    this.cargarLocalStorage()
   },
 }
 </script>

@@ -1,9 +1,7 @@
 <template>
   <div>
-    <h1 class="pt-5">Registro de Usuarios</h1>
-    <form
-      @submit.prevent="procesarFormulario({ email: email, password: pass })"
-    >
+    <h1 class="pt-5">Ingreso de Usuarios</h1>
+    <form @submit.prevent="procesarFormulario({email: email, password: pass})">
       <div class="col-md-6 pt-5">
         <div class="input-group mb-3">
           <div class="input-group-prepend">
@@ -27,19 +25,12 @@
             v-model.trim="pass"
           />
         </div>
-        <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <span class="input-group-text">&</span>
-          </div>
-          <input
-            type="password"
-            class="form-control"
-            placeholder="Reingrese el Password"
-            v-model.trim="repetPass"
-          />
-        </div>
-        <button type="submit" class="btn btn-primary btn-block" :disabled="bloquear">
-          Registrar
+        <button
+          type="submit"
+          class="btn btn-primary btn-block"
+          :disabled="bloquear"
+        >
+          Ingresar
         </button>
       </div>
     </form>
@@ -53,7 +44,6 @@ export default {
     return {
       email: '',
       pass: '',
-      repetPass: '',
     }
   },
   computed: {
@@ -61,17 +51,17 @@ export default {
       if (!this.email.includes('@')) {
         return true
       }
-      if (this.pass.length > 5 && this.pass === this.repetPass) {
+      if (this.pass.length > 5) {
         return false
       }
       return true
     },
   },
   methods: {
-    ...mapActions(['registrarUsuario']),
+    ...mapActions(['ingresoUsuario']),
     procesarFormulario() {
-      this.registrarUsuario({ email: this.email, password: this.pass })
-      ;(this.email = ''), (this.pass = ''), (this.repetPass = '')
+      this.ingresoUsuario({ email: this.email, password: this.pass })
+      ;(this.email = ''), (this.pass = '')
     },
   },
 }

@@ -51,24 +51,60 @@ export default new Vuex.Store({
   actions: {
     async registrarUsuario({ commit }, usuario) {
       try {
-        const res = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=[API_KEY]',{
-          method: 'POST',
-          body: JSON.stringify({
-            email: usuario.email,
-            password: usuario.password,
-            returnSecureToken: true
-          })
-        })
+        const res = await fetch(
+          'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAEBMUKqcJu_4wujI0mQ_fy1MpB3P-WUaY',
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              email: usuario.email,
+              password: usuario.password,
+              returnSecureToken: true,
+            }),
+          },
+        )
+        const dataDB = await res.json()
+        // console.log(dataDB)
+        if (dataDB.error) {
+          return console.log('error en los datos: ', dataDB.error)
+        }
+        commit('setUser', dataDB)
+        router.push('/')
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async ingresoUsuario({ commit }, usuario) {
+      try {
+        //ojo la url
+        const res = await fetch(
+          'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAEBMUKqcJu_4wujI0mQ_fy1MpB3P-WUaY',
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              email: usuario.email,
+              password: usuario.password,
+              returnSecureToken: true,
+            }),
+          },
+        )
+        const userDB = await res.json()
+        console.log(userDB)
+        if (userDB.error) {
+          return console.log('error en los datos: ', userDB.error)
+        }
+        commit('setUser', userDB)
+        router.push('/')
       } catch (error) {
         console.log(error)
       }
     },
     /* ------------------- */
     //Esperar los datos de la base de datos
-    async cargarLocalStorage({ commit }) {
+    async cargarLocalStorage({ commit, state }) {
+      console.log(state)
       try {
         const res = await fetch(
-          'https://api-rest-vue-init-default-rtdb.firebaseio.com/tareas.json',
+          `https://api-rest-vue-init-default-rtdb.firebaseio.com/tareas/${state.user.localId}.json?auth=${state.user.idToken}`,
         )
         //solo se captura las tareas
         const dataDB = await res.json()
@@ -78,19 +114,19 @@ export default new Vuex.Store({
         for (let id in dataDB) {
           arrayTareas.push(dataDB[id]) //se empuja una tarea en individual
         }
-      //  console.log(arrayTareas)
+        //  console.log(arrayTareas)
         commit('cargar', arrayTareas)
       } catch (error) {
-      //  console.log('error en cargarLocalStorage', error)
+        //  console.log('error en cargarLocalStorage', error)
       }
     },
     //recibimos los datos
     //guarda info en faribes
-    async setTareas({ commit }, tarea) {
+    async setTareas({ commit, state }, tarea) {
       try {
         //para resivir una respuesta se agrega una constate //  const res =
         const res = await fetch(
-          `https://api-rest-vue-init-default-rtdb.firebaseio.com/tareas/${tarea.id}.json`,
+          `https://api-rest-vue-init-default-rtdb.firebaseio.com/tareas/${state.user.localId}/${tarea.id}.json?auth=${state.user.idToken}`,
           {
             method: 'PUT', //se agrega un nuevo elemento
             headers: {
@@ -101,42 +137,42 @@ export default new Vuex.Store({
           },
         )
         const dataDB = await res.json()
-      //  console.log(dataDB)
+        //  console.log(dataDB)
       } catch (error) {
-      //  console.log('error en settareas: ', error)
+        //  console.log('error en settareas: ', error)
       }
       commit('set', tarea)
     },
     async eliminarTareas({ commit }, id) {
       try {
         await fetch(
-          `https://api-rest-vue-init-default-rtdb.firebaseio.com/tareas/${id}.json`,
+          `https://api-rest-vue-init-default-rtdb.firebaseio.com/tareas/${state.user.localId}/${id}.json?auth=${state.user.idToken}`,
           {
             method: 'DELETE',
           },
         )
         commit('eliminar', id)
       } catch (error) {
-      //  console.log('error es de eliminarTareas: ', error)
+        //  console.log('error es de eliminarTareas: ', error)
       }
     },
     setTarea({ commit }, id) {
       commit('tarea', id)
     },
-    async updateTarea({ commit }, tarea) {
+    async updateTarea({ commit, state }, tarea) {
       try {
         const res = await fetch(
-          `https://api-rest-vue-init-default-rtdb.firebaseio.com/tareas/${tarea.id}.json`,
+          `https://api-rest-vue-init-default-rtdb.firebaseio.com/tareas/${state.user.localId}/${tarea.id}.json?auth=${state.user.idToken}`,
           {
             method: 'PATCH',
             body: JSON.stringify(tarea), //se manda la tarea modificada
           },
         )
         const dataDB = await res.json()
-      //  console.log(dataDB)
+        //  console.log(dataDB)
         commit('update', dataDB)
       } catch (error) {
-      //  console.log('error updateTarea', error)
+        //  console.log('error updateTarea', error)
       }
     },
   },
